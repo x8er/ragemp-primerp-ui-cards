@@ -8,8 +8,9 @@
           <div
             class="card"
             :class="{
-              selected: animationFor === 'default',
-              'not-win': notWinCards.includes(index),
+              selected:
+                notWinCards.includes(index.toString()) &&
+                animationFor === 'default',
             }"
             v-for="(item, index) of INCOMING_CARDS.default"
             :key="index"
@@ -48,8 +49,9 @@
           <div
             class="card"
             :class="{
-              selected: animationFor === 'gold',
-              'not-win': notWinCards.includes(index),
+              selected:
+                notWinCards.includes(index.toString()) &&
+                animationFor === 'gold',
             }"
             v-for="(item, index) of INCOMING_CARDS.gold"
             :key="index"
@@ -88,8 +90,9 @@
           <div
             class="card"
             :class="{
-              selected: animationFor === 'legend',
-              'not-win': notWinCards.includes(index),
+              selected:
+                notWinCards.includes(index.toString()) &&
+                animationFor === 'legend',
             }"
             v-for="(item, index) of INCOMING_CARDS.legend"
             :key="index"
@@ -129,6 +132,25 @@
         чего-то ещё, чтобы игроку было ещё яснее.
       </span>
     </div>
+    <div
+      class="blackout"
+      :class="{ 'show-win-card': showWinCard }"
+      @click="showWinCard = false"
+    >
+      <div class="card" :class="[winCard.type]">
+        <div class="content">
+          <div class="front">
+            <div class="container">
+              <img :src="winCard.image" />
+              <div class="info">
+                <span class="title">{{ winCard.title }}</span>
+                <span class="win">{{ winCard.win }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -143,36 +165,42 @@ export default {
             title: "Автомобиль",
             win: "Lamborghini",
             image: "/test-car.png",
+            type: "default",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "default",
             isWin: 0,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "default",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "default",
             isWin: 0,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "default",
             isWin: 1,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "default",
             isWin: 0,
           },
         ],
@@ -181,36 +209,42 @@ export default {
             title: "Автомобиль",
             win: "Lamborghini",
             image: "/test-car.png",
+            type: "gold",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "gold",
             isWin: 0,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "gold",
             isWin: 1,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "gold",
             isWin: 0,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "gold",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "gold",
             isWin: 0,
           },
         ],
@@ -219,78 +253,97 @@ export default {
             title: "Автомобиль",
             win: "Lamborghini",
             image: "/test-car.png",
+            type: "legend",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "legend",
             isWin: 0,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "legend",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "legend",
             isWin: 1,
           },
           {
             title: "Статус",
             win: "VIP на 30 дней",
             image: "/test-car.png",
+            type: "legend",
             isWin: 0,
           },
           {
             title: "Деньги",
             win: "$ 100.000.000",
             image: "/test-car.png",
+            type: "legend",
             isWin: 0,
           },
         ],
       },
       animation: null,
       animationFor: null,
+      winCard: {
+        title: "",
+        win: "",
+        image: "",
+        type: "default",
+        isWin: 1,
+      },
+      showWinCard: false,
       notWinCards: [],
     };
   },
   methods: {
     mixedOrder(type) {
       const TEMP = [];
+      let winIndex = null;
       for (const INDEX in this.INCOMING_CARDS[type]) {
-        if (this.INCOMING_CARDS[type][INDEX].isWin) continue;
+        if (this.INCOMING_CARDS[type][INDEX].isWin) {
+          winIndex = INDEX;
+          continue;
+        }
         if (Math.round(Math.random())) {
           TEMP.push(INDEX);
         } else {
           TEMP.unshift(INDEX);
         }
       }
+      TEMP.unshift(winIndex);
       return TEMP;
     },
     startTheGame(type) {
       if (this.animation) return;
-      const _ = this;
-      let temp = this.mixedOrder(type),
-        i = 0,
+      const _ = this,
+        temp = this.mixedOrder(type);
+      let i = 0,
         delay = 1000;
+      this.winCard = this.INCOMING_CARDS[type][temp[0]];
       this.animationFor = type;
+      this.notWinCards = [...temp];
       this.animation = setTimeout(function tick() {
-        if (i === temp.length) {
+        if (i === temp.length - 1) {
+          _.showWinCard = true;
           _.animationFor = null;
-          _.notWinCards = [];
+          _.notWinCards.pop();
           return (_.animation = clearTimeout(_.animation));
         }
-        _.notWinCards.push(parseInt(temp[i]));
-        if (i === temp.length - 1) {
-          delay = 2000;
-        }
+        _.notWinCards.pop();
         i++;
         _.animation = setTimeout(tick, delay);
-      }, 1500);
+      }, 1000);
     },
   },
 };
@@ -307,6 +360,7 @@ export default {
   padding: 2.0833333333vw 2.8125vw 0;
   font-family: Gilroy;
   font-size: 0.9375vw;
+  position: relative;
 
   .list {
     display: flex;
@@ -519,7 +573,11 @@ export default {
 
           &.not-win .content {
             .front {
-              transform: rotateY(0deg) scale(0);
+              transform: rotateY(180deg);
+            }
+
+            .back {
+              transform: rotateY(0deg);
             }
           }
 
@@ -656,6 +714,181 @@ export default {
       .plus {
         color: #ffee51;
         margin-right: 0.2604166667vw;
+      }
+    }
+  }
+
+  .blackout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 20%,
+      rgba(0, 0, 0, 0) 40%
+    );
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s linear, visibility 0s linear 0.3s;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    &.show-win-card {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s linear, visibility 0s linear;
+
+      .card {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .card {
+      width: 10vw;
+      height: 14vw;
+      transform: scale(0.5);
+      opacity: 0;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+
+      &.gold {
+        .content {
+          .front {
+            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 210, 95, 0.5);
+            background: linear-gradient(
+              211.88deg,
+              rgba(255, 238, 81, 0.7) 0%,
+              rgba(255, 238, 81, 0) 100%
+            );
+
+            .container {
+              background: linear-gradient(
+                  180deg,
+                  rgba(25, 26, 12, 0.96) 0%,
+                  rgba(89, 83, 27, 0.96) 100%
+                ),
+                url("/supercarddaily-card.png");
+
+              .info {
+                .win {
+                  color: #ffee51;
+                }
+              }
+            }
+
+            &::after {
+              box-shadow: 0 -0.3645833333vw 4.0104166667vw 0.5208333333vw rgba(255, 238, 81, 0.75);
+              background-color: #ffee51;
+            }
+          }
+        }
+      }
+
+      &.legend {
+        .content {
+          .front {
+            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 95, 210, 0.5);
+            background: linear-gradient(
+              211.88deg,
+              rgba(255, 81, 81, 0.7) 0%,
+              rgba(255, 238, 81, 0) 100%
+            );
+
+            .container {
+              background: linear-gradient(
+                  180deg,
+                  rgba(34, 15, 27, 0.96) 0%,
+                  rgba(89, 27, 49, 0.96) 100%
+                ),
+                url("/supercarddaily-card.png");
+
+              .info {
+                .win {
+                  color: #ff5151;
+                }
+              }
+            }
+
+            &::after {
+              box-shadow: 0 -0.3645833333vw 4.0104166667vw 0.5208333333vw rgba(255, 81, 81, 0.75);
+              background-color: #ff5151;
+            }
+          }
+        }
+      }
+
+      .content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        .front {
+          box-sizing: border-box;
+          padding: 0.1041666667vw;
+          width: inherit;
+          height: inherit;
+          border-radius: 0.4166666667vw;
+          background: linear-gradient(
+            211.88deg,
+            rgba(57, 125, 255, 0.7) 0%,
+            rgba(255, 238, 81, 0) 100%
+          );
+          box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(95, 101, 255, 1);
+          position: absolute;
+          top: 0;
+          left: 0;
+          backface-visibility: hidden;
+
+          .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(
+                180deg,
+                #0a1422 0%,
+                rgba(9, 28, 56, 0.71) 100%
+              ),
+              url("/supercarddaily-card.png");
+
+            img {
+              display: block;
+              max-width: 100%;
+            }
+
+            .info {
+              margin-top: 1.7vw;
+              margin-bottom: 1vw;
+
+              span {
+                display: block;
+
+                &.win {
+                  font-size: 1.25vw;
+                  color: #51e0ff;
+                }
+              }
+            }
+          }
+
+          &::after {
+            content: "";
+            height: 0.1041666667vw;
+            width: 7vw;
+            background-color: #51e0ff;
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            box-shadow: 0 -0.3645833333vw 4.0104166667vw 0.5208333333vw rgba(81, 224, 255, 0.75);
+          }
+        }
       }
     }
   }

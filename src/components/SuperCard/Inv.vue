@@ -3,8 +3,14 @@
     <div class="card-list">
       <div
         class="card"
-        :class="[item.type]"
-        v-for="(item, index) of INCOMING_CARDS[currentPage]"
+        :class="[
+          item.type,
+          {
+            'to-dust': toDustAnimateIndex === index,
+            'to-use': toUseAnimateIndex === index,
+          },
+        ]"
+        v-for="(item, index) of devided[currentPage]"
         :key="index"
       >
         <div class="content" :class="{ 'info-open': openedInfo === index }">
@@ -29,10 +35,18 @@
           </div>
         </div>
         <div class="controls">
-          <div class="btn to-dust" @click="toDustConfirmOpen = true">
+          <div
+            class="btn to-dust"
+            @click="
+              toDustConfirmOpen = true;
+              toDustConfirmIndex = index;
+            "
+          >
             В пыль
           </div>
-          <div class="btn use" v-if="item.isCollected">Использовать</div>
+          <div class="btn use" v-if="item.isCollected" @click="toUse(index)">
+            Использовать
+          </div>
           <div class="btn" v-else>
             {{ item.parts[0] }}/{{ item.parts[1] }} собрано
           </div>
@@ -53,7 +67,7 @@
         <div
           class="box"
           :class="{ current: currentPage === index }"
-          v-for="(item, index) of INCOMING_CARDS"
+          v-for="(item, index) of devided"
           :key="index"
           @click="
             currentPage = index;
@@ -67,10 +81,14 @@
         <img :src="require('@/assets/page-arrow.svg')" />
       </div>
     </div>
+    <div class="lightout" v-if="safeAnimation"></div>
     <div
       class="blackout"
       v-show="toDustConfirmOpen"
-      @click.self="toDustConfirmOpen = false"
+      @click.self="
+        toDustConfirmOpen = false;
+        toDustConfirmIndex = null;
+      "
     >
       <div class="to-dust-confirm">
         <span class="title">Разрыв карты</span>
@@ -78,7 +96,7 @@
           >За эту карточку вы получите
           <span class="colored">95</span> обрывков.</span
         >
-        <div class="amazing-btn">
+        <div class="amazing-btn" @click="toDust()">
           <div class="content">
             <span>Разорвать</span>
           </div>
@@ -94,111 +112,120 @@ export default {
   data() {
     return {
       INCOMING_CARDS: [
-        [
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "legend",
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [3, 6],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "ultra",
-            image: "/test-car.png",
-            isCollected: true,
-            parts: null,
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: null,
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [1, 12],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "legend",
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [3, 6],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "ultra",
-            image: "/test-car.png",
-            isCollected: true,
-            parts: null,
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: null,
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [1, 12],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "ultra",
-            image: "/test-car.png",
-            isCollected: true,
-            parts: null,
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: null,
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [1, 12],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "legend",
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [3, 6],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "ultra",
-            image: "/test-car.png",
-            isCollected: true,
-            parts: null,
-          },
-        ],
-        [
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "legend",
-            image: "/test-car.png",
-            isCollected: false,
-            parts: [3, 6],
-          },
-          {
-            title: "VIP на 6 дней",
-            text: "Некоторый текстик",
-            type: "ultra",
-            image: "/test-car.png",
-            isCollected: true,
-            parts: null,
-          },
-        ],
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "legend",
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [3, 6],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "ultra",
+          image: "/test-car.png",
+          isCollected: true,
+          parts: null,
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: null,
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [1, 12],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "legend",
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [3, 6],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "ultra",
+          image: "/test-car.png",
+          isCollected: true,
+          parts: null,
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: null,
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [1, 12],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "ultra",
+          image: "/test-car.png",
+          isCollected: true,
+          parts: null,
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: null,
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [1, 12],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "legend",
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [3, 6],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "ultra",
+          image: "/test-car.png",
+          isCollected: true,
+          parts: null,
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "legend",
+          image: "/test-car.png",
+          isCollected: false,
+          parts: [3, 6],
+        },
+        {
+          title: "VIP на 6 дней",
+          text: "Некоторый текстик",
+          type: "ultra",
+          image: "/test-car.png",
+          isCollected: true,
+          parts: null,
+        },
       ],
       currentPage: 0,
       openedInfo: null,
+      safeAnimation: false,
       toDustConfirmOpen: false,
+      toDustConfirmIndex: null,
+      toDustAnimateIndex: null,
+      toUseAnimateIndex: null,
     };
+  },
+  computed: {
+    devided() {
+      const ARR = [];
+      for (let i = 0; i < Math.ceil(this.INCOMING_CARDS.length / 10); i++) {
+        ARR[i] = this.INCOMING_CARDS.slice(i * 10, (i + 1) * 10);
+      }
+      return ARR;
+    },
   },
   methods: {
     openInfo(index) {
@@ -211,10 +238,42 @@ export default {
     prevPage() {
       if (!this.currentPage) return;
       this.currentPage--;
+      this.openedInfo = null;
     },
     nextPage() {
-      if (this.currentPage === this.INCOMING_CARDS.length - 1) return;
+      if (this.currentPage === this.devided.length - 1) return;
       this.currentPage++;
+      this.openedInfo = null;
+    },
+    toDust() {
+      this.toDustConfirmOpen = false;
+      this.toDustAnimateIndex = this.toDustConfirmIndex;
+      this.toDustConfirmIndex = null;
+      this.safeAnimation = true;
+      this.openedInfo = null;
+      setTimeout(() => {
+        this.INCOMING_CARDS.splice(
+          this.currentPage * 10 + this.toDustAnimateIndex,
+          1
+        );
+
+        this.toDustAnimateIndex = null;
+        this.safeAnimation = false;
+      }, 500);
+    },
+    toUse(index) {
+      this.toUseAnimateIndex = index;
+      this.safeAnimation = true;
+      this.openedInfo = null;
+      setTimeout(() => {
+        this.INCOMING_CARDS.splice(
+          this.currentPage * 10 + this.toUseAnimateIndex,
+          1
+        );
+
+        this.toUseAnimateIndex = null;
+        this.safeAnimation = false;
+      }, 500);
     },
   },
 };
@@ -235,7 +294,7 @@ export default {
 .inv {
   box-sizing: border-box;
   padding: 0 2.7604166667vw;
-  height: 32.2916666667vw;
+  height: 32.5520833333vw;
   font-family: Gilroy;
   font-size: 0.9375vw;
   position: relative;
@@ -256,6 +315,7 @@ export default {
       height: 13.6458333333vw;
       background-color: rgba(255, 255, 255, 0.03);
       position: relative;
+      transition: transform 0.5s ease, opacity 0.5s ease;
 
       &:nth-child(5n) {
         margin-right: 0;
@@ -263,6 +323,17 @@ export default {
 
       &:nth-child(n + 6) {
         margin-top: 2.1354166667vw;
+      }
+
+      &.to-use {
+        // transform: translateY(-1.5625vw);
+        transform: scale(1.2);
+        opacity: 0;
+      }
+
+      &.to-dust {
+        transform: scale(0.8);
+        opacity: 0;
       }
 
       &.ultra {
@@ -478,6 +549,21 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    border-bottom-left-radius: 0.5208333333vw;
+    border-bottom-right-radius: 0.5208333333vw;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .lightout {
     width: 100%;
     height: 100%;
     position: absolute;

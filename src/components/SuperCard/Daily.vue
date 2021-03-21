@@ -29,6 +29,7 @@
       </div>
     </div>
     <div class="controls">
+      <!-- Тут есть две кнопки, которые оставленны на возможный будущий функционал -->
       <div class="amazing-btn" style="visibility: hidden">
         <div class="content">
           <span>Пересдать</span>

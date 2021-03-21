@@ -9,7 +9,11 @@
           копить обрывки и обменивать их на карты.</span
         >
       </div>
-      <div class="amazing-big-btn" @click="$emit('opendaily')">
+      <div
+        class="amazing-big-btn"
+        :class="{ disabled: isDisabled }"
+        @click="!isDisabled ? $emit('opendaily') : ''"
+      >
         <div class="content">
           <span>Начать игру</span>
           <img :src="require('@/assets/startgame.svg')" />
@@ -41,6 +45,11 @@
 <script>
 export default {
   name: "SuperCardMain",
+  data() {
+    return {
+      isDisabled: false,
+    };
+  },
 };
 </script>
 
@@ -80,6 +89,15 @@ export default {
     box-shadow: 0px 1.1979166667vw 2.5520833333vw -0.7291666667vw #5f65ff;
     margin-top: 2.0833333333vw;
     transition: transform 0.2s ease;
+
+    &.disabled {
+      filter: grayscale(100%);
+      box-shadow: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
 
     .content {
       padding: 0 0.9375vw;
