@@ -724,11 +724,11 @@ export default {
     align-items: center;
     width: 100%;
     height: 100%;
-    background: radial-gradient(
-      circle,
-      rgba(0, 0, 0, 1) 20%,
-      rgba(0, 0, 0, 0) 40%
-    );
+    // background: radial-gradient(
+    //   circle,
+    //   rgba(0, 0, 0, 1) 20%,
+    //   rgba(0, 0, 0, 0) 40%
+    // );
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s linear, visibility 0s linear 0.3s;
@@ -748,8 +748,8 @@ export default {
     }
 
     .card {
-      width: 10vw;
-      height: 14vw;
+      width: 12vw;
+      height: 16vw;
       transform: scale(0.5);
       opacity: 0;
       transition: transform 0.2s ease, opacity 0.2s ease;
@@ -757,7 +757,7 @@ export default {
       &.gold {
         .content {
           .front {
-            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 210, 95, 0.5);
+            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 210, 95, 0.8);
             background: linear-gradient(
               211.88deg,
               rgba(255, 238, 81, 0.7) 0%,
@@ -790,7 +790,7 @@ export default {
       &.legend {
         .content {
           .front {
-            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 95, 210, 0.5);
+            box-shadow: 0px 1.1979166667vw 10vw -0.7291666667vw rgba(255, 95, 210, 0.8);
             background: linear-gradient(
               211.88deg,
               rgba(255, 81, 81, 0.7) 0%,
@@ -863,14 +863,14 @@ export default {
             }
 
             .info {
-              margin-top: 1.7vw;
-              margin-bottom: 1vw;
+              margin-top: 2vw;
+              margin-bottom: 1.7vw;
 
               span {
                 display: block;
 
                 &.win {
-                  font-size: 1.25vw;
+                  font-size: 1.5vw;
                   color: #51e0ff;
                 }
               }
